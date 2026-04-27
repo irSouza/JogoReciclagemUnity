@@ -1,0 +1,60 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1 &5085393669449244366
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 4277821875603165521}
+  - component: {fileID: 7669624141553542568}
+  m_Layer: 0
+  m_Name: Bloco_Spawn
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &4277821875603165521
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5085393669449244366}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &7669624141553542568
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5085393669449244366}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fce869693a84b77439232f63839058df, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::BlocoMapa
+  spriteDeFundo: {fileID: 7482667652216324306, guid: 48e93eef0688c4a259cb0eddcd8661f7, type: 3}
+  corDoFundo: {r: 0.1, g: 0.6, b: 0.1, a: 1}
+  larguraBloco: 20
+  alturaBloco: 12
+  larguraSafeArea: 16
+  alturaSafeArea: 8
+  prefabLixoOrganico: {fileID: 4296384247724528622, guid: 5ab17c03ddfa31d499c3ffa5bd592968, type: 3}
+  prefabLixoReciclavel: {fileID: 7133768750683270890, guid: 31460164c2c96574f98df086787c5ca6, type: 3}
+  prefabsObstaculos:
+  - {fileID: 7244141184370009950, guid: a9c9aedd40868b742bb6fb1df5ac58e6, type: 3}
+  minLixos: 2
+  maxLixos: 5
+  minObstaculos: 1
+  maxObstaculos: 3

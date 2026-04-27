@@ -27,10 +27,21 @@ public class PlayerMovement : MonoBehaviour
         movimento = movimento.normalized;
     }
 
+    [Header("Limites do Mapa")]
+    [Tooltip("Distância máxima que o jogador pode andar a partir do centro do mapa")]
+    public float limiteX = 26f; // Limite lateral (1,5 tela para cada lado)
+    public float limiteY = 14f; // Limite vertical (1,5 tela para cima/baixo)
+
     void FixedUpdate()
     {
-        // Movimentamos o jogador usando o Rigidbody2D.
-        // Multiplicamos o vetor de movimento pela velocidade e pelo tempo fixo (Time.fixedDeltaTime)
-        rb.MovePosition(rb.position + movimento * velocidade * Time.fixedDeltaTime);
+        // Calcula a nova posição baseada no movimento
+        Vector2 novaPosicao = rb.position + movimento * velocidade * Time.fixedDeltaTime;
+
+        // "Clamp" (Prende) a posição do jogador para que ele não passe dos limites X e Y
+        novaPosicao.x = Mathf.Clamp(novaPosicao.x, -limiteX, limiteX);
+        novaPosicao.y = Mathf.Clamp(novaPosicao.y, -limiteY, limiteY);
+
+        // Move o jogador para a nova posição (agora com limites)
+        rb.MovePosition(novaPosicao);
     }
 }

@@ -1,0 +1,3 @@
+repository "jogoReciclagem/jogoReciclagem@4673736672687@cloud"
+  path "/"
+    smartbranch "/main/milhor"
