@@ -1,49 +1,42 @@
 using UnityEngine;
 using TMPro;
+using UnityEngine.SceneManagement;
 
 public class GameManager : MonoBehaviour
 {
-    [Header("Configurações do Jogo")]
-    [Tooltip("Tempo em segundos que o jogador tem para jogar (ex: 60 = 1 minuto)")]
     public float tempoTotal = 60f;
     private float tempoRestante;
     private bool jogoAcabou = false;
 
-    [Header("Interface (UI)")]
     public TextMeshProUGUI textoTimerUI;
-    
-    [Tooltip("O Painel que vai aparecer quando o tempo acabar")]
     public GameObject painelFimDeJogo;
-    public TextMeshProUGUI textoResultadoUI;
+    public TextMeshProUGUI textoPontosFinalUI;
+    
+    // Substituímos o texto por essas imagens (GameObjects)
+    public GameObject estrela1;
+    public GameObject estrela2;
+    public GameObject estrela3;
 
     private InventarioPlayer inventarioPlayer;
 
     void Start()
     {
-        // Começamos o jogo com o tempo cheio e a tela final escondida
         tempoRestante = tempoTotal;
         painelFimDeJogo.SetActive(false);
-        
-        // Despausamos o jogo, caso estivesse pausado antes
         Time.timeScale = 1f;
-
-        // Achamos o jogador para ler os pontos dele depois
         inventarioPlayer = FindObjectOfType<InventarioPlayer>();
     }
 
     void Update()
     {
         if (jogoAcabou) return;
-
-        // O timer vai descendo de acordo com o relógio da vida real
+        
         tempoRestante -= Time.deltaTime;
-
-        if (tempoRestante <= 0)
-        {
-            tempoRestante = 0;
-            FinalizarJogo();
+        if (tempoRestante <= 0) 
+        { 
+            tempoRestante = 0; 
+            FinalizarJogo(); 
         }
-
         AtualizarTimerNaTela();
     }
 
@@ -51,40 +44,39 @@ public class GameManager : MonoBehaviour
     {
         if (textoTimerUI != null)
         {
-            // Converte os segundos quebrados (ex: 59.94) num número inteiro para ficar bonito na tela
             int segundos = Mathf.CeilToInt(tempoRestante);
             textoTimerUI.text = "Tempo: " + segundos + "s";
-            
-            // Fica vermelho nos últimos 10 segundos
-            if (segundos <= 10)
-                textoTimerUI.color = Color.red;
-            else
-                textoTimerUI.color = Color.white;
+            if (segundos <= 10) textoTimerUI.color = Color.red; 
+            else textoTimerUI.color = Color.white;
         }
     }
 
     private void FinalizarJogo()
     {
         jogoAcabou = true;
-        
-        // Pausa o mundo todo (nada mais se move)
         Time.timeScale = 0f;
-
-        // Calcula as estrelas
+        
         int pontos = (inventarioPlayer != null) ? inventarioPlayer.pontos : 0;
-        int estrelas = 1; // Pelo menos 1 estrela por tentar
-
-        if (pontos >= 50) estrelas = 2;  // 5 acertos
-        if (pontos >= 100) estrelas = 3; // 10 acertos
-
-        // Mostra a tela de fim de jogo
+        
         painelFimDeJogo.SetActive(true);
+        
+        if (textoPontosFinalUI != null) textoPontosFinalUI.text = "Pontuação: " + pontos;
 
-        if (textoResultadoUI != null)
-        {
-            textoResultadoUI.text = "FIM DE JOGO!\n" +
-                                    "Você fez: " + pontos + " Pontos\n\n" +
-                                    "Nota Final: " + estrelas + " Estrelas!";
-        }
+        // Lógica visual das Estrelas com Imagens!
+        if (estrela1 != null) estrela1.SetActive(true); // Sempre ganha a primeira
+        if (pontos >= 50 && estrela2 != null) estrela2.SetActive(true);
+        if (pontos >= 100 && estrela3 != null) estrela3.SetActive(true);
+    }
+
+    public void BotaoTentarNovamente()
+    {
+        // Avisa a transição para carregar a mesma cena que estamos!
+        TransicaoManager.Instancia.CarregarCena(SceneManager.GetActiveScene().name);
+    }
+
+    public void BotaoMenuPrincipal()
+    {
+        // Avisa a transição para ir pro Menu
+        TransicaoManager.Instancia.CarregarCena("MenuScene"); 
     }
 }

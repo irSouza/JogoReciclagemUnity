@@ -53,8 +53,13 @@ MonoBehaviour:
   prefabLixoOrganico: {fileID: 4296384247724528622, guid: 5ab17c03ddfa31d499c3ffa5bd592968, type: 3}
   prefabLixoReciclavel: {fileID: 7133768750683270890, guid: 31460164c2c96574f98df086787c5ca6, type: 3}
   prefabsObstaculos:
-  - {fileID: 7244141184370009950, guid: a9c9aedd40868b742bb6fb1df5ac58e6, type: 3}
+  - {fileID: 4684280114067669910, guid: 856f513e6617b104e9b96822fa42e130, type: 3}
+  - {fileID: 4684239583910119177, guid: a40d33bce47f8b142ba6a270fce35021, type: 3}
+  - {fileID: 4275099333105514017, guid: d65291529ee2b3c4893b937a5f151856, type: 3}
+  - {fileID: 6500201607410738736, guid: a5cc62ff5ec0ac34da14c2094baa30db, type: 3}
+  - {fileID: 700080505904454416, guid: 28548311b54569d4b95a34a176bb4f55, type: 3}
+  - {fileID: 6027767173508946100, guid: 15323c13dedd74b42b34849c32a4de1d, type: 3}
   minLixos: 2
   maxLixos: 5
-  minObstaculos: 1
-  maxObstaculos: 3
+  minObstaculos: 2
+  maxObstaculos: 6
