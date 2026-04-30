@@ -40,14 +40,24 @@ public class GameManager : MonoBehaviour
         AtualizarTimerNaTela();
     }
 
+    private int ultimoSegundoExibido = -1;
+
     private void AtualizarTimerNaTela()
     {
         if (textoTimerUI != null)
         {
             int segundos = Mathf.CeilToInt(tempoRestante);
-            textoTimerUI.text = "Tempo: " + segundos + "s";
-            if (segundos <= 10) textoTimerUI.color = Color.red; 
-            else textoTimerUI.color = Color.white;
+
+            if (segundos != ultimoSegundoExibido)
+            {
+                ultimoSegundoExibido = segundos;
+                textoTimerUI.text = "Tempo: " + segundos + "s";
+
+                if (segundos <= 10)
+                    textoTimerUI.color = Color.red;
+                else
+                    textoTimerUI.color = Color.white;
+            }
         }
     }
 
