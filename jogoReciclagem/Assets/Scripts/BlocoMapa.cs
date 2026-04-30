@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using UnityEngine;
 
 public class BlocoMapa : MonoBehaviour
@@ -27,6 +28,28 @@ public class BlocoMapa : MonoBehaviour
     public int minObstaculos = 1;
     public int maxObstaculos = 3;
 
+    [Header("Configurações de Otimização (Grid)")]
+    [Tooltip("Tamanho de cada célula do grid. Deve ser maior que o diâmetro dos objetos (ex: 2.0).")]
+    public float tamanhoCelula = 2.0f;
+    [Tooltip("Raio de verificação para garantir que não haja sobreposição com objetos externos.")]
+    public float raioColisao = 0.8f;
+
+    private struct CelulaGrid
+    {
+        public int ColunaX;
+        public Vector2 Centro;
+
+        public CelulaGrid(int colunaX, Vector2 centro)
+        {
+            ColunaX = colunaX;
+            Centro = centro;
+        }
+    }
+
+    private List<CelulaGrid> celulasLivres;
+    private int[] obstaculosNaColuna;
+    private int totalLinhas;
+
     void Awake()
     {
         // Awake roda no momento exato em que o objeto é criado (Instantiate), 
@@ -36,6 +59,7 @@ public class BlocoMapa : MonoBehaviour
 
     void Start()
     {
+        InicializarGrid();
         GerarItens();
     }
 
@@ -70,6 +94,46 @@ public class BlocoMapa : MonoBehaviour
         }
     }
 
+    private void InicializarGrid()
+    {
+        celulasLivres = new List<CelulaGrid>();
+
+        int colunas = Mathf.FloorToInt(larguraSafeArea / tamanhoCelula);
+        totalLinhas = Mathf.FloorToInt(alturaSafeArea / tamanhoCelula);
+
+        // Se as áreas forem menores que a célula, garante no mínimo 1 para não quebrar
+        if (colunas <= 0) colunas = 1;
+        if (totalLinhas <= 0) totalLinhas = 1;
+
+        obstaculosNaColuna = new int[colunas];
+
+        float startX = transform.position.x - (colunas * tamanhoCelula) / 2f + (tamanhoCelula / 2f);
+        float startY = transform.position.y - (totalLinhas * tamanhoCelula) / 2f + (tamanhoCelula / 2f);
+
+        for (int x = 0; x < colunas; x++)
+        {
+            for (int y = 0; y < totalLinhas; y++)
+            {
+                float posX = startX + (x * tamanhoCelula);
+                float posY = startY + (y * tamanhoCelula);
+                celulasLivres.Add(new CelulaGrid(x, new Vector2(posX, posY)));
+            }
+        }
+
+        EmbaralharCelulas(celulasLivres);
+    }
+
+    private void EmbaralharCelulas(List<CelulaGrid> lista)
+    {
+        for (int i = 0; i < lista.Count; i++)
+        {
+            CelulaGrid temp = lista[i];
+            int randomIndex = Random.Range(i, lista.Count);
+            lista[i] = lista[randomIndex];
+            lista[randomIndex] = temp;
+        }
+    }
+
     private void GerarItens()
     {
         // 1. Gera Obstáculos
@@ -79,7 +143,11 @@ public class BlocoMapa : MonoBehaviour
             for (int i = 0; i < qtdObstaculos; i++)
             {
                 int indice = Random.Range(0, prefabsObstaculos.Length);
-                Instantiate(prefabsObstaculos[indice], SortearPosicaoLivre(), Quaternion.identity, transform);
+                Vector2? posicao = SortearPosicaoLivre(true);
+                if (posicao.HasValue)
+                {
+                    Instantiate(prefabsObstaculos[indice], posicao.Value, Quaternion.identity, transform);
+                }
             }
         }
 
@@ -89,31 +157,56 @@ public class BlocoMapa : MonoBehaviour
         {
             int tipo = Random.Range(0, 2);
             GameObject prefabLixo = (tipo == 0) ? prefabLixoOrganico : prefabLixoReciclavel;
-            Instantiate(prefabLixo, SortearPosicaoLivre(), Quaternion.identity, transform);
+            Vector2? posicao = SortearPosicaoLivre(false);
+            if (posicao.HasValue)
+            {
+                Instantiate(prefabLixo, posicao.Value, Quaternion.identity, transform);
+            }
         }
     }
 
-    private Vector2 SortearPosicaoLivre()
+    private Vector2? SortearPosicaoLivre(bool ehObstaculo)
     {
-        Vector2 posicaoSorteada = Vector2.zero;
-        bool achouLugarVazio = false;
-        int tentativas = 0;
+        // Limite de variação dentro da célula (jitter) para parecer mais natural
+        float variacaoMaxima = (tamanhoCelula / 2f) - raioColisao;
+        if (variacaoMaxima < 0) variacaoMaxima = 0; // Prevenção se a célula for muito pequena
 
-        while (!achouLugarVazio && tentativas < 30)
+        while (celulasLivres.Count > 0)
         {
-            float x = transform.position.x + Random.Range(-larguraSafeArea / 2f, larguraSafeArea / 2f);
-            float y = transform.position.y + Random.Range(-alturaSafeArea / 2f, alturaSafeArea / 2f);
-            posicaoSorteada = new Vector2(x, y);
+            int ultimoIndice = celulasLivres.Count - 1;
+            CelulaGrid celula = celulasLivres[ultimoIndice];
+            celulasLivres.RemoveAt(ultimoIndice); // Remove do final é O(1)
 
-            Collider2D colisao = Physics2D.OverlapCircle(posicaoSorteada, 0.8f);
+            // Regra Anti-Bloqueio para obstáculos
+            if (ehObstaculo)
+            {
+                // Se adicionar mais um obstáculo nesta coluna preencheria todas as linhas (ou quase todas),
+                // pulamos esta célula para garantir que sempre haverá passagem livre na vertical
+                if (obstaculosNaColuna[celula.ColunaX] >= totalLinhas - 1)
+                {
+                    continue;
+                }
+            }
+
+            // Aplica Jitter (desvio aleatório)
+            float jitterX = Random.Range(-variacaoMaxima, variacaoMaxima);
+            float jitterY = Random.Range(-variacaoMaxima, variacaoMaxima);
+            Vector2 posicaoCandidata = new Vector2(celula.Centro.x + jitterX, celula.Centro.y + jitterY);
+
+            // Apenas UMA checagem de física
+            Collider2D colisao = Physics2D.OverlapCircle(posicaoCandidata, raioColisao);
             if (colisao == null)
             {
-                achouLugarVazio = true;
+                if (ehObstaculo)
+                {
+                    obstaculosNaColuna[celula.ColunaX]++;
+                }
+                return posicaoCandidata;
             }
-            tentativas++;
         }
 
-        return posicaoSorteada;
+        // Retorna null se não encontrar espaço livre
+        return null;
     }
 
     private void OnDrawGizmosSelected()
