@@ -81,14 +81,14 @@ public class InventarioPlayer : MonoBehaviour
     {
         if (textoPontosUI != null)
         {
-            textoPontosUI.text = "Pontos: " + pontos;
+            textoPontosUI.text = "Pontos: " + pontos.ToString();
         }
 
         if (textoMochilaUI != null)
         {
             textoMochilaUI.text = "Mochila:\n" + 
-                                  "Orgânico: " + qtdOrganicoAtual + "/" + limiteOrganico + "\n" +
-                                  "Reciclável: " + qtdReciclavelAtual + "/" + limiteReciclavel;
+                                  "Orgânico: " + qtdOrganicoAtual.ToString() + "/" + limiteOrganico.ToString() + "\n" +
+                                  "Reciclável: " + qtdReciclavelAtual.ToString() + "/" + limiteReciclavel.ToString();
         }
     }
 
