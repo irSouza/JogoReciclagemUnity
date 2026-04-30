@@ -61,6 +61,14 @@ public class GameManager : MonoBehaviour
         }
     }
 
+    public static int CalcularEstrelas(int pontos)
+    {
+        if (pontos <= 0) return 0;
+        if (pontos < 50) return 1;
+        if (pontos < 100) return 2;
+        return 3;
+    }
+
     private void FinalizarJogo()
     {
         jogoAcabou = true;
@@ -70,12 +78,14 @@ public class GameManager : MonoBehaviour
         
         painelFimDeJogo.SetActive(true);
         
-        if (textoPontosFinalUI != null) textoPontosFinalUI.text = "Pontuação: " + pontos;
+        if (textoPontosFinalUI != null) textoPontosFinalUI.text = "Pontuação: " + Mathf.Max(0, pontos);
+
+        int estrelas = CalcularEstrelas(pontos);
 
         // Lógica visual das Estrelas com Imagens!
-        if (estrela1 != null) estrela1.SetActive(true); // Sempre ganha a primeira
-        if (pontos >= 50 && estrela2 != null) estrela2.SetActive(true);
-        if (pontos >= 100 && estrela3 != null) estrela3.SetActive(true);
+        if (estrela1 != null) estrela1.SetActive(estrelas >= 1);
+        if (estrela2 != null) estrela2.SetActive(estrelas >= 2);
+        if (estrela3 != null) estrela3.SetActive(estrelas >= 3);
     }
 
     public void BotaoTentarNovamente()
