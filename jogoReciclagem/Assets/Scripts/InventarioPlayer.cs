@@ -1,4 +1,3 @@
-using System.Collections.Generic;
 using UnityEngine;
 using TMPro; // Usado para acessar os textos da UI!
 
