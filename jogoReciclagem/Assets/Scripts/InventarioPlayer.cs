@@ -149,33 +149,68 @@ public class InventarioPlayer : MonoBehaviour
 
     private void TentarDescartar(TipoLixo.TipoDeLixo tipoEscolhidoPeloJogador, Lixeira lixeira)
     {
+        bool resultadoSucesso;
+        bool alterouEstado = CalcularDescarte(
+            tipoEscolhidoPeloJogador,
+            lixeira.lixoAceito,
+            ref qtdOrganicoAtual,
+            ref qtdReciclavelAtual,
+            ref pontos,
+            out resultadoSucesso
+        );
+
+        if (alterouEstado)
+        {
+            if (resultadoSucesso)
+            {
+                Debug.Log("Descarte Correto! +10 pontos.");
+            }
+            else
+            {
+                Debug.Log("Lixeira Errada! -5 pontos de penalidade.");
+            }
+
+            AtualizarTextosNaTela();
+        }
+    }
+
+    /// <summary>
+    /// Lógica pura de descarte para facilitar os testes unitários sem dependência do Unity.
+    /// Retorna true se o estado foi modificado.
+    /// </summary>
+    public static bool CalcularDescarte(
+        TipoLixo.TipoDeLixo tipoEscolhidoPeloJogador,
+        TipoLixo.TipoDeLixo lixoAceitoLixeira,
+        ref int qtdOrganicoAtual,
+        ref int qtdReciclavelAtual,
+        ref int pontos,
+        out bool resultadoSucesso)
+    {
+        resultadoSucesso = false;
+
         // 1. O jogador tem esse lixo na mochila?
-        if (tipoEscolhidoPeloJogador == TipoLixo.TipoDeLixo.Organico && qtdOrganicoAtual <= 0) return;
-        if (tipoEscolhidoPeloJogador == TipoLixo.TipoDeLixo.Reciclavel && qtdReciclavelAtual <= 0) return;
+        if (tipoEscolhidoPeloJogador == TipoLixo.TipoDeLixo.Organico && qtdOrganicoAtual <= 0) return false;
+        if (tipoEscolhidoPeloJogador == TipoLixo.TipoDeLixo.Reciclavel && qtdReciclavelAtual <= 0) return false;
 
         // 2. A lixeira aceita esse lixo?
-        if (lixeira.lixoAceito == tipoEscolhidoPeloJogador)
+        if (lixoAceitoLixeira == tipoEscolhidoPeloJogador)
         {
             // ACERTOU!
             pontos += 10;
-            if (tipoEscolhidoPeloJogador == TipoLixo.TipoDeLixo.Organico) qtdOrganicoAtual--;
-            else qtdReciclavelAtual--;
-
-            Debug.Log("Descarte Correto! +10 pontos.");
+            resultadoSucesso = true;
         }
         else
         {
             // ERROU DE LIXEIRA! (Penalidade opcional)
             pontos -= 5;
             if (pontos < 0) pontos = 0; // Não deixa a pontuação ficar negativa
-
-            // O lixo é jogado fora de qualquer jeito (esvazia a mochila), mas ele perde pontos por jogar errado
-            if (tipoEscolhidoPeloJogador == TipoLixo.TipoDeLixo.Organico) qtdOrganicoAtual--;
-            else qtdReciclavelAtual--;
-
-            Debug.Log("Lixeira Errada! -5 pontos de penalidade.");
+            resultadoSucesso = false;
         }
 
-        AtualizarTextosNaTela();
+        // O lixo é jogado fora de qualquer jeito
+        if (tipoEscolhidoPeloJogador == TipoLixo.TipoDeLixo.Organico) qtdOrganicoAtual--;
+        else qtdReciclavelAtual--;
+
+        return true;
     }
 }
