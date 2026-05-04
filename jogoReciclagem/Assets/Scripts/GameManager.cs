@@ -1,6 +1,7 @@
 using UnityEngine;
 using TMPro;
 using UnityEngine.SceneManagement;
+using System.Collections;
 
 public class GameManager : MonoBehaviour
 {
@@ -12,6 +13,9 @@ public class GameManager : MonoBehaviour
     public GameObject painelFimDeJogo;
     public TextMeshProUGUI textoResultadoUI;
 
+    // Array para os objetos das estrelas na UI
+    public GameObject[] estrelasUI;
+
     private InventarioPlayer inventarioPlayer;
 
     void Start()
@@ -19,6 +23,15 @@ public class GameManager : MonoBehaviour
         tempoRestante = tempoTotal;
         painelFimDeJogo.SetActive(false);
         Time.timeScale = 1f;
+
+        // Esconde as estrelas no começo
+        if (estrelasUI != null)
+        {
+            foreach(GameObject estrela in estrelasUI)
+            {
+                if (estrela != null) estrela.SetActive(false);
+            }
+        }
 
         inventarioPlayer = Object.FindFirstObjectByType<InventarioPlayer>();
     }
@@ -51,7 +64,8 @@ public class GameManager : MonoBehaviour
     private void FinalizarJogo()
     {
         jogoAcabou = true;
-        Time.timeScale = 0f;
+        Time.timeScale = 0f; // Pausa o jogo, mas para a coroutine rodar, precisamos usar unscaledTime se animarmos.
+
         int pontos = (inventarioPlayer != null) ? inventarioPlayer.pontos : 0;
         int estrelas = CalcularEstrelas(pontos);
 
@@ -59,6 +73,18 @@ public class GameManager : MonoBehaviour
         if (textoResultadoUI != null)
         {
             textoResultadoUI.text = "FIM DE JOGO!\nVocê fez: " + pontos + " Pontos\n\nNota Final: " + estrelas + " Estrelas!";
+        }
+
+        // Ativa as estrelas animadas correspondentes
+        if (estrelasUI != null)
+        {
+            for (int i = 0; i < estrelas; i++)
+            {
+                if (i < estrelasUI.Length && estrelasUI[i] != null)
+                {
+                    estrelasUI[i].SetActive(true);
+                }
+            }
         }
     }
 
